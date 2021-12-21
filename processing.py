@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 
 import utils
@@ -26,8 +26,9 @@ class Dashboard(object):
 
     def get_indicators(self):
         accuracy = accuracy_score(self.y_test, self.y_pred)
-        f1score = f1_score(self.y_test, self.y_pred, average=None)
-        return accuracy, f1score
+        precision = precision_score(self.y_test, self.y_pred, average=None)
+        recall = recall_score(self.y_test, self.y_pred, average=None)
+        return accuracy, precision, recall
 
     def get_instances(self):
         options = []

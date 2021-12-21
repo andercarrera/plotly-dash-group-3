@@ -106,19 +106,19 @@ app.layout = html.Div([
 
             # Recall
             html.Div([
-                html.H1("F1-Score"),
-                html.H3(id="f1_text")
+                html.H1("Precision Score"),
+                html.H3(id="precision_text")
             ],
-                id="f1-score",
+                id="precision-score",
                 className="mini_container indicator",
             ),
 
             # F1-Score
             html.Div([
-                html.H1("ROC AUC"),
-                html.H3(id="rocauc_text")
+                html.H1("Recall Score"),
+                html.H3(id="recall_text")
             ],
-                id="roc-auc",
+                id="recall-score",
                 className="mini_container indicator",
             ),
         ],
@@ -179,8 +179,8 @@ def show_hide_element(visibility_state):
 @app.callback(
     [
         Output("accuracy_text", "children"),
-        Output("f1_text", "children"),
-        #Output("rocauc_text", "children"),
+        Output("precision_text", "children"),
+        Output("recall_text", "children"),
         Output("instances-dropdown", "options"),
         Output("instances-dropdown", "value")
     ],
@@ -188,9 +188,9 @@ def show_hide_element(visibility_state):
 )
 def algorithm_updated(value):
     dashboard.update_model(value)
-    accuracy, f1 = dashboard.get_indicators()
+    accuracy, precision, recall = dashboard.get_indicators()
     instances, value = dashboard.get_instances()
-    return accuracy, f1, instances, value
+    return accuracy, precision, recall, instances, value
 
 
 # @app.callback(
