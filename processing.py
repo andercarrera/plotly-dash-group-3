@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 
 import utils
@@ -7,7 +7,7 @@ import utils
 
 class Dashboard(object):
     def __init__(self):
-        self.df = pd.read_csv("data/wine.csv", sep=",")
+        self.df = pd.read_csv("data/wine.csv")
         X = self.df.iloc[:, 1:14]
         y = self.df.iloc[:, 0]
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=0, stratify=y)
@@ -27,8 +27,7 @@ class Dashboard(object):
     def get_indicators(self):
         accuracy = accuracy_score(self.y_test, self.y_pred)
         f1score = f1_score(self.y_test, self.y_pred, average=None)
-        rocauc = roc_auc_score(self.y_test, self.y_pred)
-        return accuracy, f1score, rocauc
+        return accuracy, f1score
 
     def get_instances(self):
         options = []
