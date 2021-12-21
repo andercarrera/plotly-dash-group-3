@@ -13,6 +13,20 @@ Todas las librerías utilizas están definidas en el fichero "requirements.txt".
 ```bash
 pip install -r requirements.txt
 ```
+## Elementos interactivos
+1. Modificar la barrita que tenemos de KNN, pero en vez de eso que sea para el de Kmeans.
+
+2. Correlación que ya está implementada 
+
+3. Especificar ya sea con barra o con dropdown o escrito en un textbox (input type number) las dos variables de DBSCAN: eps y minPoints
+
+4. Hacer un heatmap del dataset en un mapa mundi para ver de donde vienen las conexiones. Como elemento interactivo hemos pensado en un filtro (Dropdown) de algunos protocolos (ICMP...) o todos depende del curro que sea). Justificación: Como ejemplo en ICMP: Podemos ver desde dónde se hacen por lo tanto podemos ver tendencias como Ping Flood en este caso. (Los pings son ICMP)
+
+## Algoritmos
+1. DBSCAN
+2. HDBSCAN
+3. K-Means
+
 ## Filtros
 
 ### Filtro de algoritmos (dropdown simple)
