@@ -62,6 +62,12 @@ h1, h2, h3, h4, h5, h6 {
     width: 70%;
     margin-top: 0.5%;
 }
+#graphs2 {
+    display: flex;
+    float: left;
+    width: 70%;
+    margin-top: 0.5%;
+}
 
 #xai {
     margin: 3px;
@@ -72,3 +78,5 @@ h1, h2, h3, h4, h5, h6 {
     margin: 3px;
     width: 600px;
 }
+
+

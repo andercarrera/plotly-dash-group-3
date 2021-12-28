@@ -33,6 +33,11 @@ class Dashboard(object):
             kmeans.fit(self.df_norm)
             self.wcss.append(kmeans.inertia_)
 
+        kmeans = KMeans(n_clusters=3, max_iter=300)
+        kmeans.fit(self.df_norm)
+        self.y_pred = kmeans.predict(self.df_norm)
+        self.pca['Labels'] = kmeans.labels_
+
     def update_model(self, algorithm_name):
         algorithm = utils.algorithms[algorithm_name]
         #if algorithm == 'KMeans':

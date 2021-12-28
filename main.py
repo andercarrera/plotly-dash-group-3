@@ -136,33 +136,44 @@ app.layout = html.Div([
             # ],
             #     id="xai",
             # ),
-            html.Div([
-                dcc.Graph(id='correlation-graph'),
-            ],
-                id="correlation",
-            ),
-            html.Div([
-                dcc.Graph(
-                    id='elbow-graph',
-                    figure=go.Figure(data=[go.Scatter(x=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], y=dashboard.wcss)]),
 
-                ),
-            ],
-                id="elbow",
-            ),
             html.Div([
-                dashboard.update_model('KMeans'),
                 dcc.Graph(
                     id='scatter-graph',
-                    figure=px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels")
+                    figure=px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Resultado de clusterización",
+                                      labels={'Coord 1': 'Coordenada 1',
+                                              'Coord 2': 'Coordenada 2'})
                 ),
 
             ],
                 id="scatter",
                 style={'display': 'block'},
             ),
+            html.Div([
+                dcc.Graph(
+                    id='elbow-graph',
+                    figure=px.line(x=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], y=dashboard.wcss, title='Elbow method',
+                                      labels={
+                                          'x': 'Valores para K',
+                                          'y': 'WCSS',
+                                      }
+                                      )
+                ),
+            ],
+                id="elbow",
+            ),
+
         ],
             id="graphs",
+        ),
+        html.Div([
+            html.Div([
+                dcc.Graph(id='correlation-graph'),
+            ],
+                id="correlation",
+            ),
+        ],
+            id="graphs2",
         )
     ],
         id="dashboard",
@@ -216,7 +227,9 @@ def show_hide_element(visibility_state):
     [Input('k_slider', 'value')])
 def update_k_param(value):
     dashboard.update_k_param(value)
-    fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels")
+    fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Resultado de clusterización",
+                                      labels={'Coord 1': 'Coordenada 1',
+                                              'Coord 2': 'Coordenada 2'})
     return fig
 
 
