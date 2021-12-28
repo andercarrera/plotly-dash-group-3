@@ -1,5 +1,6 @@
 import dash
 import plotly.graph_objs as go
+import plotly.express as px
 from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
@@ -35,11 +36,14 @@ app.layout = html.Div([
                 id='algorithm-dropdown',
                 clearable=False,
                 options=[
-                    {'label': 'Decision Tree', 'value': 'DecisionTree'},
-                    {'label': 'RandomForest Classifier', 'value': 'RandomForest'},
-                    {'label': 'KNN Classifier', 'value': 'KNN'}
+                    # {'label': 'Decision Tree', 'value': 'DecisionTree'},
+                    # {'label': 'RandomForest Classifier', 'value': 'RandomForest'},
+                    # {'label': 'KNN Classifier', 'value': 'KNN'}
+                    {'label': 'KMeans', 'value': 'KMeans'},
+                    {'label': 'Decision Tree', 'value': 'DecisionTree'}
+
                 ],
-                value='DecisionTree'
+                value='KMeans'  # 'DecisionTree'
             ),
 
             html.P("Filter instances"),
@@ -55,10 +59,11 @@ app.layout = html.Div([
                 multi=True,
             ),
 
-            # KNN Barra
+            # KNMeans Barra
             html.Div(id='slider', children=[
                 html.P("Select the K value"),
                 dcc.Slider(
+                    id='k_slider',
                     min=0,
                     max=9,
                     marks={i: '{}'.format(i) for i in range(10)},
@@ -74,7 +79,7 @@ app.layout = html.Div([
                     max=100,
                     step=1,
                     value=20,
-                    tooltip={"placement": "bottom", "always_visible": True},
+                    # tooltip={"placement": "bottom", "always_visible": True},
                 )
             ], style={'display': 'block'}),
 
@@ -109,7 +114,7 @@ app.layout = html.Div([
                 html.H1("Precision Score"),
                 html.H3(id="precision_text")
             ],
-                id="precision-score",
+                id="precision",
                 className="mini_container indicator",
             ),
 
@@ -118,7 +123,7 @@ app.layout = html.Div([
                 html.H1("Recall Score"),
                 html.H3(id="recall_text")
             ],
-                id="recall-score",
+                id="recall",
                 className="mini_container indicator",
             ),
         ],
@@ -135,7 +140,27 @@ app.layout = html.Div([
                 dcc.Graph(id='correlation-graph'),
             ],
                 id="correlation",
-            )
+            ),
+            html.Div([
+                dcc.Graph(
+                    id='elbow-graph',
+                    figure=go.Figure(data=[go.Scatter(x=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], y=dashboard.wcss)]),
+
+                ),
+            ],
+                id="elbow",
+            ),
+            html.Div([
+                dashboard.update_model('KMeans'),
+                dcc.Graph(
+                    id='scatter-graph',
+                    figure=px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels")
+                ),
+
+            ],
+                id="scatter",
+                style={'display': 'block'},
+            ),
         ],
             id="graphs",
         )
@@ -150,7 +175,7 @@ app.layout = html.Div([
     Output(component_id='slider', component_property='style'),
     [Input(component_id='algorithm-dropdown', component_property='value')])
 def show_hide_element(visibility_state):
-    if visibility_state == 'KNN':
+    if visibility_state == 'KMeans':
         return {'display': 'block'}
     else:
         return {'display': 'none'}
@@ -177,10 +202,29 @@ def show_hide_element(visibility_state):
 
 
 @app.callback(
+    Output(component_id='elbow', component_property='style'),
+    [Input(component_id='algorithm-dropdown', component_property='value')])
+def show_hide_element(visibility_state):
+    if visibility_state == 'KMeans':
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
+
+
+@app.callback(
+    Output('scatter-graph', 'figure'),
+    [Input('k_slider', 'value')])
+def update_k_param(value):
+    dashboard.update_k_param(value)
+    fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels")
+    return fig
+
+
+@app.callback(
     [
-        Output("accuracy_text", "children"),
-        Output("precision_text", "children"),
-        Output("recall_text", "children"),
+        # Output("accuracy_text", "children"),
+        # Output("precision_text", "children"),
+        # Output("recall_text", "children"),
         Output("instances-dropdown", "options"),
         Output("instances-dropdown", "value")
     ],
@@ -188,9 +232,9 @@ def show_hide_element(visibility_state):
 )
 def algorithm_updated(value):
     dashboard.update_model(value)
-    accuracy, precision, recall = dashboard.get_indicators()
+    # accuracy, precision, recall = dashboard.get_indicators()
     instances, value = dashboard.get_instances()
-    return accuracy, precision, recall, instances, value
+    return instances, value  # accuracy, precision, recall, instances, value
 
 
 # @app.callback(

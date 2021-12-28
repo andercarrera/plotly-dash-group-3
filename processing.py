@@ -1,6 +1,9 @@
 import pandas as pd
+from sklearn.cluster import KMeans
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.decomposition import PCA
 
 import utils
 
@@ -18,16 +21,35 @@ class Dashboard(object):
         self.model = None
         self.y_pred = None
         self.explainer = None
+        self.df_norm = pd.DataFrame(MinMaxScaler().fit_transform(X))
+        self.df_norm.columns = X.columns
+        self.wcss = []
+        self.pca = pd.DataFrame(PCA(n_components=2).fit_transform(self.df_norm))
+        cols = ['Coord 1', 'Coord 2']
+        self.pca.columns = cols
+
+        for i in range(1, 11):
+            kmeans = KMeans(n_clusters=i, max_iter=300)
+            kmeans.fit(self.df_norm)
+            self.wcss.append(kmeans.inertia_)
 
     def update_model(self, algorithm_name):
         algorithm = utils.algorithms[algorithm_name]
-        self.model = algorithm.fit(self.X_train, self.y_train)
-        self.y_pred = self.model.predict(self.X_test)
+        #if algorithm == 'KMeans':
+        self.model = algorithm.fit(self.df_norm)
+        self.y_pred = self.model.predict(self.df_norm)
+        self.pca['Labels'] = algorithm.labels_
+
+
+        #else:
+         #   self.model = algorithm.fit(self.X_train, self.y_train)
+          #  self.y_pred = self.model.predict(self.X_test)
 
     def get_indicators(self):
         accuracy = accuracy_score(self.y_test, self.y_pred)
-        precision = precision_score(self.y_test, self.y_pred, average=None)
-        recall = recall_score(self.y_test, self.y_pred, average=None)
+        precision = precision_score(self.y_test, self.y_pred,
+                                    average='macro')  # precision_score(self.y_test, self.y_pred, average=None)
+        recall = recall_score(self.y_test, self.y_pred, average='macro')
         return accuracy, precision, recall
 
     def get_instances(self):
@@ -67,3 +89,10 @@ class Dashboard(object):
     def get_columns(self, column_names):
         columns = self.df[column_names]
         return columns
+
+    def update_k_param(self, value):
+        algorithm = utils.algorithms['KMeans']
+        algorithm.n_clusters = value
+        self.model = algorithm.fit(self.df_norm)
+        self.y_pred = self.model.predict(self.df_norm)
+        self.pca['Labels'] = algorithm.labels_

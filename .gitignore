@@ -82,3 +82,6 @@ fabric.properties
 /.idea/inspectionProfiles/profiles_settings.xml
 /.idea/inspectionProfiles/Project_Default.xml
 /.idea/vcs.xml
+/.idea/plotly-dash-group-3.iml
+/data/.ipynb_checkpoints/Comprension-checkpoint.ipynb
+/data/Comprension.ipynb
