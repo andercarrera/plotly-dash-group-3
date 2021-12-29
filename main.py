@@ -40,8 +40,7 @@ app.layout = html.Div([
                     # {'label': 'RandomForest Classifier', 'value': 'RandomForest'},
                     # {'label': 'KNN Classifier', 'value': 'KNN'}
                     {'label': 'KMeans', 'value': 'KMeans'},
-                    {'label': 'DBSCAN', 'value': 'DBSCAN'},
-                    {'label': 'Decision Tree', 'value': 'DecisionTree'}
+                    {'label': 'DBSCAN', 'value': 'DBSCAN'}
 
                 ],
                 value='KMeans'  # 'DecisionTree'
@@ -59,6 +58,30 @@ app.layout = html.Div([
                 options=dashboard.get_variable_names(),
                 multi=True,
             ),
+
+            # Barra para modificar parámetro eps
+            html.Div(id='slider_div_eps', children=[
+                html.P("Select the eps value"),
+                dcc.Slider(
+                    id='eps_slider',
+                    min=0.2,
+                    max=0.7,
+                    step=0.05,
+                    marks={0.2: '0.2',
+                           0.25: '0.25',
+                           0.3: '0.3',
+                           0.35: '0.35',
+                           0.4: '0.4',
+                           0.45: '0.45',
+                           0.5: '0.5',
+                           0.55: '0.55',
+                           0.6: '0.6',
+                           0.65: '0.65',
+                           0.7: '0.7',
+                           },
+                    value=0.5,
+                )
+            ], style={'display': 'block'}),
 
             # KNMeans Barra
             html.Div(id='slider', children=[
@@ -85,13 +108,25 @@ app.layout = html.Div([
             ], style={'display': 'block'}),
 
             # Max Iter
-            html.Div(id='slider_MI', children=[
-                html.P("Select the maximum depth"),
+            # html.Div(id='slider_MI', children=[
+            #     html.P("Select the maximum depth"),
+            #     dcc.Slider(
+            #         min=0,
+            #         max=9,
+            #         marks={i: '{}'.format(i) for i in range(10)},
+            #         value=0,  # Default = None según SKLearn
+            #     )
+            # ], style={'display': 'block'})
+
+            #Slider para elegir valor min samples (DBSCAN)
+            html.Div(id='slider_div_min_samples', children=[
+                html.P("Select the minimum samples in a neighbourhood"),
                 dcc.Slider(
-                    min=0,
+                    id='slider_min_samples',
+                    min=2,
                     max=9,
-                    marks={i: '{}'.format(i) for i in range(10)},
-                    value=0,  # Default = None según SKLearn
+                    marks={i: '{}'.format(i) for i in range(2,10)},
+                    value=5,
                 )
             ], style={'display': 'block'})
         ],
@@ -141,7 +176,8 @@ app.layout = html.Div([
             html.Div([
                 dcc.Graph(
                     id='scatter-graph',
-                    figure=px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Resultado de clusterización",
+                    figure=px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels",
+                                      title="Resultado de clusterización",
                                       labels={'Coord 1': 'Coordenada 1',
                                               'Coord 2': 'Coordenada 2'})
                 ),
@@ -153,7 +189,8 @@ app.layout = html.Div([
             html.Div([
                 dcc.Graph(
                     id='scatter-graph-dbscan',
-                    figure=px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Resultado de clusterización",
+                    figure=px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels",
+                                      title="Resultado de clusterización",
                                       labels={'Coord 1': 'Coordenada 1',
                                               'Coord 2': 'Coordenada 2'})
                 ),
@@ -166,11 +203,11 @@ app.layout = html.Div([
                 dcc.Graph(
                     id='elbow-graph',
                     figure=px.line(x=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], y=dashboard.wcss, title='Elbow method',
-                                      labels={
-                                          'x': 'Valores para K',
-                                          'y': 'WCSS',
-                                      }
-                                      )
+                                   labels={
+                                       'x': 'Valores para K',
+                                       'y': 'WCSS',
+                                   }
+                                   )
                 ),
             ],
                 id="elbow",
@@ -204,6 +241,18 @@ def show_hide_element(visibility_state):
     else:
         return {'display': 'none'}
 
+
+@app.callback(
+    Output(component_id='slider_div_eps', component_property='style'),
+    Output(component_id='slider_div_min_samples', component_property='style'),
+    [Input(component_id='algorithm-dropdown', component_property='value')])
+def show_hide_element(visibility_state):
+    if visibility_state == 'DBSCAN':
+        return {'display': 'block'}, {'display': 'block'}
+    else:
+        return {'display': 'none'}, {'display': 'none'}
+
+
 @app.callback(
     Output(component_id='scatter', component_property='style'),
     [Input(component_id='algorithm-dropdown', component_property='value')])
@@ -212,6 +261,7 @@ def show_hide_element(visibility_state):
         return {'display': 'block'}
     else:
         return {'display': 'none'}
+
 
 @app.callback(
     Output(component_id='scatter_dbscan', component_property='style'),
@@ -233,14 +283,14 @@ def show_hide_element(visibility_state):
         return {'display': 'none'}
 
 
-@app.callback(
-    Output(component_id='slider_MI', component_property='style'),
-    [Input(component_id='algorithm-dropdown', component_property='value')])
-def show_hide_element(visibility_state):
-    if visibility_state == 'DecisionTree':
-        return {'display': 'block'}
-    else:
-        return {'display': 'none'}
+# @app.callback(
+#     Output(component_id='slider_MI', component_property='style'),
+#     [Input(component_id='algorithm-dropdown', component_property='value')])
+# def show_hide_element(visibility_state):
+#     if visibility_state == 'DecisionTree':
+#         return {'display': 'block'}
+#     else:
+#         return {'display': 'none'}
 
 
 @app.callback(
@@ -259,8 +309,19 @@ def show_hide_element(visibility_state):
 def update_k_param(value):
     dashboard.update_k_param(value)
     fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Resultado de clusterización",
-                                      labels={'Coord 1': 'Coordenada 1',
-                                              'Coord 2': 'Coordenada 2'})
+                     labels={'Coord 1': 'Coordenada 1',
+                             'Coord 2': 'Coordenada 2'})
+    return fig
+
+
+@app.callback(
+    Output('scatter-graph-dbscan', 'figure'),
+    [Input('eps_slider', 'value'), Input('slider_min_samples', 'value')])
+def update_dbscan_params(eps, min_samples):
+    dashboard.update_dbscan_params(eps, min_samples)
+    fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Resultado de clusterización",
+                     labels={'Coord 1': 'Coordenada 1',
+                             'Coord 2': 'Coordenada 2'})
     return fig
 
 
@@ -270,8 +331,7 @@ def update_k_param(value):
         # Output("precision_text", "children"),
         # Output("recall_text", "children"),
         Output("instances-dropdown", "options"),
-        Output("instances-dropdown", "value"),
-        Output("scatter-graph-dbscan", "figure")
+        Output("instances-dropdown", "value")
     ],
     [Input("algorithm-dropdown", "value")],
 )
@@ -279,10 +339,8 @@ def algorithm_updated(value):
     dashboard.update_model(value)
     # accuracy, precision, recall = dashboard.get_indicators()
     instances, value = dashboard.get_instances()
-    fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Resultado de clusterización",
-                     labels={'Coord 1': 'Coordenada 1',
-                             'Coord 2': 'Coordenada 2'})
-    return instances, value, fig  # accuracy, precision, recall, instances, value
+
+    return instances, value  # accuracy, precision, recall, instances, value
 
 
 # @app.callback(

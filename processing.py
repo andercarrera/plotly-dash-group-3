@@ -102,3 +102,10 @@ class Dashboard(object):
         self.model = algorithm.fit(self.df_norm)
         self.y_pred = self.model.predict(self.df_norm)
         self.pca['Labels'] = algorithm.labels_
+
+    def update_dbscan_params(self, eps, min_samples):
+        algorithm = utils.algorithms['DBSCAN']
+        algorithm.eps = eps
+        algorithm.min_samples = min_samples
+        self.model = algorithm.fit(self.df_norm)
+        self.pca['Labels'] = algorithm.labels_
