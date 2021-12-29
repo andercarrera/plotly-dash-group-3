@@ -40,6 +40,7 @@ app.layout = html.Div([
                     # {'label': 'RandomForest Classifier', 'value': 'RandomForest'},
                     # {'label': 'KNN Classifier', 'value': 'KNN'}
                     {'label': 'KMeans', 'value': 'KMeans'},
+                    {'label': 'DBSCAN', 'value': 'DBSCAN'},
                     {'label': 'Decision Tree', 'value': 'DecisionTree'}
 
                 ],
@@ -151,6 +152,18 @@ app.layout = html.Div([
             ),
             html.Div([
                 dcc.Graph(
+                    id='scatter-graph-dbscan',
+                    figure=px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Resultado de clusterización",
+                                      labels={'Coord 1': 'Coordenada 1',
+                                              'Coord 2': 'Coordenada 2'})
+                ),
+
+            ],
+                id="scatter_dbscan",
+                style={'display': 'block'},
+            ),
+            html.Div([
+                dcc.Graph(
                     id='elbow-graph',
                     figure=px.line(x=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], y=dashboard.wcss, title='Elbow method',
                                       labels={
@@ -187,6 +200,24 @@ app.layout = html.Div([
     [Input(component_id='algorithm-dropdown', component_property='value')])
 def show_hide_element(visibility_state):
     if visibility_state == 'KMeans':
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
+
+@app.callback(
+    Output(component_id='scatter', component_property='style'),
+    [Input(component_id='algorithm-dropdown', component_property='value')])
+def show_hide_element(visibility_state):
+    if visibility_state == 'KMeans':
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
+
+@app.callback(
+    Output(component_id='scatter_dbscan', component_property='style'),
+    [Input(component_id='algorithm-dropdown', component_property='value')])
+def show_hide_element(visibility_state):
+    if visibility_state == 'DBSCAN':
         return {'display': 'block'}
     else:
         return {'display': 'none'}
@@ -239,7 +270,8 @@ def update_k_param(value):
         # Output("precision_text", "children"),
         # Output("recall_text", "children"),
         Output("instances-dropdown", "options"),
-        Output("instances-dropdown", "value")
+        Output("instances-dropdown", "value"),
+        Output("scatter-graph-dbscan", "figure")
     ],
     [Input("algorithm-dropdown", "value")],
 )
@@ -247,7 +279,10 @@ def algorithm_updated(value):
     dashboard.update_model(value)
     # accuracy, precision, recall = dashboard.get_indicators()
     instances, value = dashboard.get_instances()
-    return instances, value  # accuracy, precision, recall, instances, value
+    fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Resultado de clusterización",
+                     labels={'Coord 1': 'Coordenada 1',
+                             'Coord 2': 'Coordenada 2'})
+    return instances, value, fig  # accuracy, precision, recall, instances, value
 
 
 # @app.callback(

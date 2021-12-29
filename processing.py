@@ -40,12 +40,13 @@ class Dashboard(object):
 
     def update_model(self, algorithm_name):
         algorithm = utils.algorithms[algorithm_name]
-        #if algorithm == 'KMeans':
-        self.model = algorithm.fit(self.df_norm)
-        self.y_pred = self.model.predict(self.df_norm)
-        self.pca['Labels'] = algorithm.labels_
-
-
+        if algorithm == 'KMeans':
+            self.model = algorithm.fit(self.df_norm)
+            self.y_pred = self.model.predict(self.df_norm)
+            self.pca['Labels'] = algorithm.labels_
+        else:
+            self.model = algorithm.fit(self.df_norm)
+            self.pca['Labels'] = algorithm.labels_
         #else:
          #   self.model = algorithm.fit(self.X_train, self.y_train)
           #  self.y_pred = self.model.predict(self.X_test)
