@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.cluster import KMeans
-from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, silhouette_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
@@ -52,11 +52,11 @@ class Dashboard(object):
           #  self.y_pred = self.model.predict(self.X_test)
 
     def get_indicators(self):
-        accuracy = accuracy_score(self.y_test, self.y_pred)
-        precision = precision_score(self.y_test, self.y_pred,
-                                    average='macro')  # precision_score(self.y_test, self.y_pred, average=None)
-        recall = recall_score(self.y_test, self.y_pred, average='macro')
-        return accuracy, precision, recall
+        silhouette = silhouette_score(self.pca, self.y_pred)
+        # precision = precision_score(self.y_test, self.y_pred,
+        #                             average='macro')  # precision_score(self.y_test, self.y_pred, average=None)
+        # recall = recall_score(self.y_test, self.y_pred, average='macro')
+        return silhouette  # , precision, recall
 
     def get_instances(self):
         options = []

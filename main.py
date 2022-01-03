@@ -4,7 +4,6 @@ import plotly.express as px
 from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output
-
 import processing
 
 dashboard = processing.Dashboard()
@@ -88,10 +87,10 @@ app.layout = html.Div([
                 html.P("Select the K value"),
                 dcc.Slider(
                     id='k_slider',
-                    min=0,
+                    min=2,
                     max=9,
-                    marks={i: '{}'.format(i) for i in range(10)},
-                    value=5,
+                    marks={i: '{}'.format(i) for i in range(2,10)},
+                    value=3,
                 )
             ], style={'display': 'block'}),
 
@@ -138,10 +137,10 @@ app.layout = html.Div([
         html.Div([
             # Precision
             html.Div([
-                html.H1("Accuracy"),
-                html.H3(id="accuracy_text")
+                html.H1("Silhouette"),
+                html.H3(id="silhouette_text")
             ],
-                id="accuracy",
+                id="silhouette",
                 className="mini_container indicator",
             ),
 
@@ -221,6 +220,12 @@ app.layout = html.Div([
                 dcc.Graph(id='correlation-graph'),
             ],
                 id="correlation",
+            ),
+            html.Div([
+                dcc.Graph(id='silhouette-graph'),
+            ],
+                id="silhouette-g",
+                style={'display': 'block'},
             ),
         ],
             id="graphs2",
@@ -304,14 +309,17 @@ def show_hide_element(visibility_state):
 
 
 @app.callback(
-    Output('scatter-graph', 'figure'),
+    [Output('scatter-graph', 'figure'),
+     Output("silhouette_text", "children")],
     [Input('k_slider', 'value')])
 def update_k_param(value):
     dashboard.update_k_param(value)
     fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Resultado de clusterización",
                      labels={'Coord 1': 'Coordenada 1',
                              'Coord 2': 'Coordenada 2'})
-    return fig
+    silhouette = dashboard.get_indicators()
+
+    return fig, silhouette
 
 
 @app.callback(
