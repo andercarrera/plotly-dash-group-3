@@ -39,7 +39,8 @@ app.layout = html.Div([
                     # {'label': 'RandomForest Classifier', 'value': 'RandomForest'},
                     # {'label': 'KNN Classifier', 'value': 'KNN'}
                     {'label': 'KMeans', 'value': 'KMeans'},
-                    {'label': 'DBSCAN', 'value': 'DBSCAN'}
+                    {'label': 'DBSCAN', 'value': 'DBSCAN'},
+                    {'label': 'MeanShift', 'value': 'MeanShift'}
 
                 ],
                 value='KMeans'  # 'DecisionTree'
@@ -127,7 +128,16 @@ app.layout = html.Div([
                     marks={i: '{}'.format(i) for i in range(2,10)},
                     value=5,
                 )
-            ], style={'display': 'block'})
+            ], style={'display': 'block'}),
+
+            html.Div(id='outliers', children=[
+                dcc.Checklist(
+                    options=[
+                        {'label': 'Quitar outliers', 'value': 'outlier'}
+                    ],
+                    value=['outlier']
+                )
+            ], style={'display': 'block'}),
         ],
             id="filters",
             className="container",
@@ -135,7 +145,7 @@ app.layout = html.Div([
 
         # indicators
         html.Div([
-            # Precision
+            # Silhouette
             html.Div([
                 html.H1("Silhouette"),
                 html.H3(id="silhouette_text")
@@ -144,23 +154,15 @@ app.layout = html.Div([
                 className="mini_container indicator",
             ),
 
-            # Recall
+            # Silhouette
             html.Div([
-                html.H1("Precision Score"),
-                html.H3(id="precision_text")
+                html.H1("Silhouette"),
+                html.H3(id="silhouette_dbscan_text")
             ],
-                id="precision",
+                id="silhouette-dbscan",
                 className="mini_container indicator",
             ),
 
-            # F1-Score
-            html.Div([
-                html.H1("Recall Score"),
-                html.H3(id="recall_text")
-            ],
-                id="recall",
-                className="mini_container indicator",
-            ),
         ],
             id="indicators",
         ),
@@ -250,12 +252,15 @@ def show_hide_element(visibility_state):
 @app.callback(
     Output(component_id='slider_div_eps', component_property='style'),
     Output(component_id='slider_div_min_samples', component_property='style'),
+    Output(component_id='silhouette', component_property='style'),
+    Output(component_id='silhouette-dbscan', component_property='style'),
+    Output(component_id='outliers', component_property='style'),
     [Input(component_id='algorithm-dropdown', component_property='value')])
 def show_hide_element(visibility_state):
     if visibility_state == 'DBSCAN':
-        return {'display': 'block'}, {'display': 'block'}
+        return {'display': 'block'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'block'}
     else:
-        return {'display': 'none'}, {'display': 'none'}
+        return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'none'}
 
 
 @app.callback(
@@ -323,14 +328,18 @@ def update_k_param(value):
 
 
 @app.callback(
-    Output('scatter-graph-dbscan', 'figure'),
+   [ Output('scatter-graph-dbscan', 'figure'),
+     Output('silhouette_dbscan_text', 'children')],
     [Input('eps_slider', 'value'), Input('slider_min_samples', 'value')])
 def update_dbscan_params(eps, min_samples):
     dashboard.update_dbscan_params(eps, min_samples)
     fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Resultado de clusterización",
                      labels={'Coord 1': 'Coordenada 1',
                              'Coord 2': 'Coordenada 2'})
-    return fig
+
+    silhouette = dashboard.get_indicators()
+
+    return fig, silhouette
 
 
 @app.callback(
