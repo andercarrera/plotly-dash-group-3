@@ -132,10 +132,11 @@ app.layout = html.Div([
 
             html.Div(id='outliers', children=[
                 dcc.Checklist(
+                    id='check_outliers',
                     options=[
-                        {'label': 'Quitar outliers', 'value': 'outlier'}
+                        {'label': 'Show graph without outliers', 'value': 'outlier'}
                     ],
-                    value=['outlier']
+                    value=[]
                 )
             ], style={'display': 'block'}),
         ],
@@ -163,6 +164,66 @@ app.layout = html.Div([
                 className="mini_container indicator",
             ),
 
+            #Homogeneity KMeans
+
+            html.Div([
+                html.H1("Homogeneity"),
+                html.H3(id="homogeneity_kmeans_text")
+            ],
+                id="homogeneity-kmeans",
+                className="mini_container indicator",
+            ),
+
+            # Homogeneity DBSCAN
+
+            html.Div([
+                html.H1("Homogeneity"),
+                html.H3(id="homogeneity_dbscan_text")
+            ],
+                id="homogeneity-dbscan",
+                className="mini_container indicator",
+            ),
+
+            # Completeness KMeans
+
+            html.Div([
+                html.H1("Completeness"),
+                html.H3(id="completeness_kmeans_text")
+            ],
+                id="completeness-kmeans",
+                className="mini_container indicator",
+            ),
+
+            # Completeness DBSCAN
+
+            html.Div([
+                html.H1("Completeness"),
+                html.H3(id="completeness_dbscan_text")
+            ],
+                id="completeness-dbscan",
+                className="mini_container indicator",
+            ),
+
+            # V Measure KMeans
+
+            html.Div([
+                html.H1("V-Measure"),
+                html.H3(id="vmeasure_kmeans_text")
+            ],
+                id="vmeasure-kmeans",
+                className="mini_container indicator",
+            ),
+
+            # V Measure DBSCAN
+
+            html.Div([
+                html.H1("V-Measure"),
+                html.H3(id="vmeasure_dbscan_text")
+            ],
+                id="vmeasure-dbscan",
+                className="mini_container indicator",
+            ),
+
         ],
             id="indicators",
         ),
@@ -178,9 +239,9 @@ app.layout = html.Div([
                 dcc.Graph(
                     id='scatter-graph',
                     figure=px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels",
-                                      title="Resultado de clusterización",
-                                      labels={'Coord 1': 'Coordenada 1',
-                                              'Coord 2': 'Coordenada 2'})
+                                      title="Clustering result",
+                                      labels={'Coord 1': 'Coordinate 1',
+                                              'Coord 2': 'Coordinate 2'})
                 ),
 
             ],
@@ -191,9 +252,9 @@ app.layout = html.Div([
                 dcc.Graph(
                     id='scatter-graph-dbscan',
                     figure=px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels",
-                                      title="Resultado de clusterización",
-                                      labels={'Coord 1': 'Coordenada 1',
-                                              'Coord 2': 'Coordenada 2'})
+                                      title="Clustering result",
+                                      labels={'Coord 1': 'Coordinate 1',
+                                              'Coord 2': 'Coordinate 2'})
                 ),
 
             ],
@@ -213,7 +274,12 @@ app.layout = html.Div([
             ],
                 id="elbow",
             ),
-
+            html.Div([
+                dcc.Graph(id='no-outlier-graph'),
+            ],
+                id="no-outlier",
+                style={'display': 'block'},
+            ),
         ],
             id="graphs",
         ),
@@ -223,12 +289,7 @@ app.layout = html.Div([
             ],
                 id="correlation",
             ),
-            html.Div([
-                dcc.Graph(id='silhouette-graph'),
-            ],
-                id="silhouette-g",
-                style={'display': 'block'},
-            ),
+
         ],
             id="graphs2",
         )
@@ -238,6 +299,15 @@ app.layout = html.Div([
     ),
 ])
 
+
+@app.callback(
+    Output(component_id='no-outlier', component_property='style'),
+    [Input(component_id='check_outliers', component_property='value')])
+def show_hide_element(value):
+    if value == ['outlier']:
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
 
 @app.callback(
     Output(component_id='slider', component_property='style'),
@@ -254,13 +324,19 @@ def show_hide_element(visibility_state):
     Output(component_id='slider_div_min_samples', component_property='style'),
     Output(component_id='silhouette', component_property='style'),
     Output(component_id='silhouette-dbscan', component_property='style'),
+    Output(component_id='homogeneity-kmeans', component_property='style'),
+    Output(component_id='homogeneity-dbscan', component_property='style'),
+    Output(component_id='completeness-kmeans', component_property='style'),
+    Output(component_id='completeness-dbscan', component_property='style'),
+    Output(component_id='vmeasure-kmeans', component_property='style'),
+    Output(component_id='vmeasure-dbscan', component_property='style'),
     Output(component_id='outliers', component_property='style'),
     [Input(component_id='algorithm-dropdown', component_property='value')])
 def show_hide_element(visibility_state):
     if visibility_state == 'DBSCAN':
-        return {'display': 'block'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'block'}
+        return {'display': 'block'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'block'}
     else:
-        return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'none'}
+        return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'none'}
 
 
 @app.callback(
@@ -315,32 +391,43 @@ def show_hide_element(visibility_state):
 
 @app.callback(
     [Output('scatter-graph', 'figure'),
-     Output("silhouette_text", "children")],
-    [Input('k_slider', 'value')])
-def update_k_param(value):
+     Output("silhouette_text", "children"),
+     Output("homogeneity_kmeans_text", "children"),
+     Output("completeness_kmeans_text", "children"),
+     Output("vmeasure_kmeans_text", "children")],
+    [Input('k_slider', 'value'), Input("algorithm-dropdown", "value")])
+def update_k_param(value, algorithm):
+    dashboard.update_model(algorithm)
     dashboard.update_k_param(value)
-    fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Resultado de clusterización",
-                     labels={'Coord 1': 'Coordenada 1',
-                             'Coord 2': 'Coordenada 2'})
-    silhouette = dashboard.get_indicators()
-
-    return fig, silhouette
+    fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Clustering result",
+                     labels={'Coord 1': 'Coordinate 1',
+                             'Coord 2': 'Coordinate 2'})
+    silhouette, homogeneity, completeness, vmeasure = dashboard.get_indicators()
+    return fig, silhouette, homogeneity, completeness, vmeasure
 
 
 @app.callback(
-   [ Output('scatter-graph-dbscan', 'figure'),
-     Output('silhouette_dbscan_text', 'children')],
-    [Input('eps_slider', 'value'), Input('slider_min_samples', 'value')])
-def update_dbscan_params(eps, min_samples):
+    [Output('scatter-graph-dbscan', 'figure'),
+     Output('silhouette_dbscan_text', 'children'),
+     Output("homogeneity_dbscan_text", "children"),
+     Output("completeness_dbscan_text", "children"),
+     Output("vmeasure_dbscan_text", "children"),
+     Output('no-outlier-graph', 'figure')],
+    [Input('eps_slider', 'value'), Input('slider_min_samples', 'value'), Input("algorithm-dropdown", "value")])
+def update_dbscan_params(eps, min_samples, value):
+    dashboard.update_model(value)
     dashboard.update_dbscan_params(eps, min_samples)
-    fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Resultado de clusterización",
-                     labels={'Coord 1': 'Coordenada 1',
-                             'Coord 2': 'Coordenada 2'})
+    fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Clustering result",
+                     labels={'Coord 1': 'Coordinate 1',
+                             'Coord 2': 'Coordinate 2'})
 
-    silhouette = dashboard.get_indicators()
+    silhouette, homogeneity, completeness, vmeasure = dashboard.get_indicators()
 
-    return fig, silhouette
+    fig2 = px.scatter(dashboard.df_no_outliers, x="Coord 1", y="Coord 2", color="Labels", title="Clustering result without outliers",
+                     labels={'Coord 1': 'Coordinate 1',
+                             'Coord 2': 'Coordinate 2'})
 
+    return fig, silhouette, homogeneity, completeness, vmeasure, fig2
 
 @app.callback(
     [

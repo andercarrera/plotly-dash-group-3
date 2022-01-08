@@ -1,9 +1,10 @@
 import pandas as pd
 from sklearn.cluster import KMeans
-from sklearn.metrics import accuracy_score, precision_score, recall_score, silhouette_score
+from sklearn.metrics import silhouette_score, homogeneity_score, completeness_score, v_measure_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
+import numpy as np
 
 import utils
 
@@ -27,6 +28,15 @@ class Dashboard(object):
         self.pca = pd.DataFrame(PCA(n_components=2).fit_transform(self.df_norm))
         cols = ['Coord 1', 'Coord 2']
         self.pca.columns = cols
+        self.df_no_outliers = None
+
+        wine_true = pd.DataFrame(self.df['Wine'])
+
+        self.true_labels = np.array([], int)
+        for i in wine_true:
+            # r[i] = e[i]-1
+            self.true_labels = np.append(self.true_labels, wine_true[i] - 1)
+
 
         for i in range(1, 11):
             kmeans = KMeans(n_clusters=i, max_iter=300)
@@ -48,6 +58,9 @@ class Dashboard(object):
             self.model = algorithm.fit(self.df_norm)
             self.y_pred = self.model.fit_predict(self.df_norm)
             self.pca['Labels'] = algorithm.labels_
+            self.df_no_outliers = pd.DataFrame(self.pca)
+            indexNames = self.df_no_outliers[self.df_no_outliers['Labels'] == -1].index
+            self.df_no_outliers.drop(indexNames, inplace=True)
         else:
             self.model = algorithm.fit(self.X)
             self.y_pred = self.model.fit_predict(self.X)
@@ -58,10 +71,10 @@ class Dashboard(object):
 
     def get_indicators(self):
         silhouette = silhouette_score(self.pca, self.y_pred)
-        # precision = precision_score(self.y_test, self.y_pred,
-        #                             average='macro')  # precision_score(self.y_test, self.y_pred, average=None)
-        # recall = recall_score(self.y_test, self.y_pred, average='macro')
-        return silhouette  # , precision, recall
+        homogeneity = homogeneity_score(self.true_labels, self.y_pred)
+        completeness = completeness_score(self.true_labels, self.y_pred)
+        vmeasure = v_measure_score(self.true_labels, self.y_pred)
+        return silhouette, homogeneity, completeness, vmeasure
 
     def get_instances(self):
         options = []
@@ -114,3 +127,6 @@ class Dashboard(object):
         algorithm.min_samples = min_samples
         self.model = algorithm.fit(self.df_norm)
         self.pca['Labels'] = algorithm.labels_
+        self.df_no_outliers = pd.DataFrame(self.pca)
+        indexNames = self.df_no_outliers[self.df_no_outliers['Labels'] == -1].index
+        self.df_no_outliers.drop(indexNames, inplace=True)
