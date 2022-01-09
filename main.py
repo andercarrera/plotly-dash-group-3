@@ -125,7 +125,7 @@ app.layout = html.Div([
         html.Div([
             # Silhouette KMeans
             html.Div([
-                html.H1("Silhouette"),
+                html.H2("Silhouette"),
                 html.H3(id="silhouette_text")
             ],
                 id="silhouette",
@@ -134,7 +134,7 @@ app.layout = html.Div([
 
             # Silhouette DBSCAN
             html.Div([
-                html.H1("Silhouette"),
+                html.H2("Silhouette"),
                 html.H3(id="silhouette_dbscan_text")
             ],
                 id="silhouette-dbscan",
@@ -144,7 +144,7 @@ app.layout = html.Div([
             #Homogeneity KMeans
 
             html.Div([
-                html.H1("Homogeneity"),
+                html.H2("Homogeneity"),
                 html.H3(id="homogeneity_kmeans_text")
             ],
                 id="homogeneity-kmeans",
@@ -154,7 +154,7 @@ app.layout = html.Div([
             # Homogeneity DBSCAN
 
             html.Div([
-                html.H1("Homogeneity"),
+                html.H2("Homogeneity"),
                 html.H3(id="homogeneity_dbscan_text")
             ],
                 id="homogeneity-dbscan",
@@ -164,7 +164,7 @@ app.layout = html.Div([
             # Completeness KMeans
 
             html.Div([
-                html.H1("Completeness"),
+                html.H2("Completeness"),
                 html.H3(id="completeness_kmeans_text")
             ],
                 id="completeness-kmeans",
@@ -174,7 +174,7 @@ app.layout = html.Div([
             # Completeness DBSCAN
 
             html.Div([
-                html.H1("Completeness"),
+                html.H2("Completeness"),
                 html.H3(id="completeness_dbscan_text")
             ],
                 id="completeness-dbscan",
@@ -184,7 +184,7 @@ app.layout = html.Div([
             # V Measure KMeans
 
             html.Div([
-                html.H1("V-Measure"),
+                html.H2("V-Measure"),
                 html.H3(id="vmeasure_kmeans_text")
             ],
                 id="vmeasure-kmeans",
@@ -194,7 +194,7 @@ app.layout = html.Div([
             # V Measure DBSCAN
 
             html.Div([
-                html.H1("V-Measure"),
+                html.H2("V-Measure"),
                 html.H3(id="vmeasure_dbscan_text")
             ],
                 id="vmeasure-dbscan",
