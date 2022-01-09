@@ -1,7 +1,6 @@
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score, homogeneity_score, completeness_score, v_measure_score
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
 import numpy as np
@@ -14,11 +13,6 @@ class Dashboard(object):
         self.df = pd.read_csv("data/wine.csv")
         self.X = self.df.iloc[:, 1:14]
         y = self.df.iloc[:, 0]
-        X_train, X_test, y_train, y_test = train_test_split(self.X, y, test_size=0.20, random_state=0, stratify=y)
-        self.X_train = X_train
-        self.X_test = X_test
-        self.y_train = y_train
-        self.y_test = y_test
         self.model = None
         self.y_pred = None
         self.explainer = None
@@ -69,22 +63,9 @@ class Dashboard(object):
         vmeasure = v_measure_score(self.true_labels, self.y_pred)
         return silhouette, homogeneity, completeness, vmeasure
 
-    def get_shap_values(self, instance_number):
-        if instance_number is None:
-            return dict()
-        i_shap = self.explainer.shap_values(self.X_test.iloc[int(instance_number)])
-        if len(i_shap) == 2:
-            i_shap = i_shap[1]
-        else:
-            i_shap = i_shap[0]
-        dic = {}
-        for i, shap in enumerate(i_shap):
-            dic[self.df.columns[i]] = shap
-        return dic
-
     def get_variable_names(self):
         variables = []
-        for col in self.X_test.columns:
+        for col in self.X.columns:
             var = {
                 'label': col,
                 'value': col
