@@ -54,20 +54,13 @@ class Dashboard(object):
             self.model = algorithm.fit(self.df_norm)
             self.y_pred = self.model.predict(self.df_norm)
             self.pca['Labels'] = algorithm.labels_
-        elif algorithm_name == 'DBSCAN':
+        else:
             self.model = algorithm.fit(self.df_norm)
             self.y_pred = self.model.fit_predict(self.df_norm)
             self.pca['Labels'] = algorithm.labels_
             self.df_no_outliers = pd.DataFrame(self.pca)
             indexNames = self.df_no_outliers[self.df_no_outliers['Labels'] == -1].index
             self.df_no_outliers.drop(indexNames, inplace=True)
-        else:
-            self.model = algorithm.fit(self.X)
-            self.y_pred = self.model.fit_predict(self.X)
-            self.pca['Labels'] = algorithm.labels_
-        #else:
-         #   self.model = algorithm.fit(self.X_train, self.y_train)
-          #  self.y_pred = self.model.predict(self.X_test)
 
     def get_indicators(self):
         silhouette = silhouette_score(self.pca, self.y_pred)
@@ -75,17 +68,6 @@ class Dashboard(object):
         completeness = completeness_score(self.true_labels, self.y_pred)
         vmeasure = v_measure_score(self.true_labels, self.y_pred)
         return silhouette, homogeneity, completeness, vmeasure
-
-    def get_instances(self):
-        options = []
-        value = 0
-        for i, instance in enumerate(self.y_test):
-            option = {
-                'label': "Instance " + str(i) + " (Real=" + str(instance) + " Pred=" + str(self.y_pred[i]) + ")",
-                'value': str(i)
-            }
-            options.append(option)
-        return options, value
 
     def get_shap_values(self, instance_number):
         if instance_number is None:

@@ -35,21 +35,10 @@ app.layout = html.Div([
                 id='algorithm-dropdown',
                 clearable=False,
                 options=[
-                    # {'label': 'Decision Tree', 'value': 'DecisionTree'},
-                    # {'label': 'RandomForest Classifier', 'value': 'RandomForest'},
-                    # {'label': 'KNN Classifier', 'value': 'KNN'}
                     {'label': 'KMeans', 'value': 'KMeans'},
-                    {'label': 'DBSCAN', 'value': 'DBSCAN'},
-                    {'label': 'MeanShift', 'value': 'MeanShift'}
-
+                    {'label': 'DBSCAN', 'value': 'DBSCAN'}
                 ],
-                value='KMeans'  # 'DecisionTree'
-            ),
-
-            html.P("Filter instances"),
-            dcc.Dropdown(
-                id='instances-dropdown',
-                clearable=False
+                value='KMeans'
             ),
 
             html.P("Filter correlation attributes"),
@@ -83,7 +72,7 @@ app.layout = html.Div([
                 )
             ], style={'display': 'block'}),
 
-            # KNMeans Barra
+            # KMeans Barra
             html.Div(id='slider', children=[
                 html.P("Select the K value"),
                 dcc.Slider(
@@ -103,20 +92,8 @@ app.layout = html.Div([
                     max=100,
                     step=1,
                     value=20,
-                    # tooltip={"placement": "bottom", "always_visible": True},
                 )
             ], style={'display': 'block'}),
-
-            # Max Iter
-            # html.Div(id='slider_MI', children=[
-            #     html.P("Select the maximum depth"),
-            #     dcc.Slider(
-            #         min=0,
-            #         max=9,
-            #         marks={i: '{}'.format(i) for i in range(10)},
-            #         value=0,  # Default = None según SKLearn
-            #     )
-            # ], style={'display': 'block'})
 
             #Slider para elegir valor min samples (DBSCAN)
             html.Div(id='slider_div_min_samples', children=[
@@ -146,7 +123,7 @@ app.layout = html.Div([
 
         # indicators
         html.Div([
-            # Silhouette
+            # Silhouette KMeans
             html.Div([
                 html.H1("Silhouette"),
                 html.H3(id="silhouette_text")
@@ -155,7 +132,7 @@ app.layout = html.Div([
                 className="mini_container indicator",
             ),
 
-            # Silhouette
+            # Silhouette DBSCAN
             html.Div([
                 html.H1("Silhouette"),
                 html.H3(id="silhouette_dbscan_text")
@@ -229,12 +206,6 @@ app.layout = html.Div([
         ),
 
         html.Div([
-            # html.Div([
-            #     dcc.Graph(id='xai-graph'),
-            # ],
-            #     id="xai",
-            # ),
-
             html.Div([
                 dcc.Graph(
                     id='scatter-graph',
@@ -368,17 +339,6 @@ def show_hide_element(visibility_state):
     else:
         return {'display': 'none'}
 
-
-# @app.callback(
-#     Output(component_id='slider_MI', component_property='style'),
-#     [Input(component_id='algorithm-dropdown', component_property='value')])
-# def show_hide_element(visibility_state):
-#     if visibility_state == 'DecisionTree':
-#         return {'display': 'block'}
-#     else:
-#         return {'display': 'none'}
-
-
 @app.callback(
     Output(component_id='elbow', component_property='style'),
     [Input(component_id='algorithm-dropdown', component_property='value')])
@@ -428,46 +388,6 @@ def update_dbscan_params(eps, min_samples, value):
                              'Coord 2': 'Coordinate 2'})
 
     return fig, silhouette, homogeneity, completeness, vmeasure, fig2
-
-@app.callback(
-    [
-        # Output("accuracy_text", "children"),
-        # Output("precision_text", "children"),
-        # Output("recall_text", "children"),
-        Output("instances-dropdown", "options"),
-        Output("instances-dropdown", "value")
-    ],
-    [Input("algorithm-dropdown", "value")],
-)
-def algorithm_updated(value):
-    dashboard.update_model(value)
-    # accuracy, precision, recall = dashboard.get_indicators()
-    instances, value = dashboard.get_instances()
-
-    return instances, value  # accuracy, precision, recall, instances, value
-
-
-# @app.callback(
-#     Output("xai-graph", "figure"),
-#     [Input("instances-dropdown", "value")],
-# )
-# def instance_updated(value):
-#     shap_values = dashboard.get_shap_values(value)
-#     sorted_shap = {}
-#     for val in sorted(shap_values, key=lambda k: abs(shap_values[k])):
-#         sorted_shap[val] = shap_values[val]
-#     trace = go.Bar(x=list(sorted_shap.values()), y=list(sorted_shap.keys()), orientation='h')
-#     graph = {
-#         'data': [trace],
-#         'layout': go.Layout(
-#             title='Instance Explainability',
-#             xaxis={
-#                 'title': 'Shapley Values',
-#                 'range': [-0.75, 0.75]
-#             }
-#         )
-#     }
-#     return graph
 
 
 @app.callback(
