@@ -48,6 +48,20 @@ app.layout = html.Div([
                 multi=True,
             ),
 
+            html.Div(id='score_kmeans', children=[
+                html.P("Choose diagram"),
+                dcc.Dropdown(
+                    id='diagram-dropdown',
+                    options=[
+                        {'label': 'Elbow method', 'value': 'elbow'},
+                        {'label': 'Silhouette score', 'value': 'silhouette'},
+                        {'label': 'Calinski-Harabasz score', 'value': 'calinski'},
+                        {'label': 'Davies-Bouldin score', 'value': 'davies'}
+                    ],
+                    value='elbow'
+                )
+            ]),
+
             # Barra para modificar parámetro eps
             html.Div(id='slider_div_eps', children=[
                 html.P("Select the eps value"),
@@ -71,7 +85,6 @@ app.layout = html.Div([
                     value=0.5,
                 )
             ], style={'display': 'block'}),
-
             # KMeans Barra
             html.Div(id='slider', children=[
                 html.P("Select the K value"),
@@ -79,7 +92,7 @@ app.layout = html.Div([
                     id='k_slider',
                     min=2,
                     max=9,
-                    marks={i: '{}'.format(i) for i in range(2,10)},
+                    marks={i: '{}'.format(i) for i in range(2, 10)},
                     value=3,
                 )
             ], style={'display': 'block'}),
@@ -95,14 +108,14 @@ app.layout = html.Div([
                 )
             ], style={'display': 'block'}),
 
-            #Slider para elegir valor min samples (DBSCAN)
+            # Slider para elegir valor min samples (DBSCAN)
             html.Div(id='slider_div_min_samples', children=[
                 html.P("Select the minimum samples in a neighbourhood"),
                 dcc.Slider(
                     id='slider_min_samples',
                     min=2,
-                    max=9,
-                    marks={i: '{}'.format(i) for i in range(2,10)},
+                    max=20,
+                    marks={i: '{}'.format(i) for i in range(2, 20)},
                     value=5,
                 )
             ], style={'display': 'block'}),
@@ -141,7 +154,7 @@ app.layout = html.Div([
                 className="mini_container indicator",
             ),
 
-            #Homogeneity KMeans
+            # Homogeneity KMeans
 
             html.Div([
                 html.H2("Homogeneity"),
@@ -201,6 +214,44 @@ app.layout = html.Div([
                 className="mini_container indicator",
             ),
 
+            # Calinski-Harabasz KMeans
+
+            html.Div([
+                html.H2("Calinski-Harabasz"),
+                html.H3(id="calinski_kmeans_text")
+            ],
+                id="calinski-kmeans",
+                className="mini_container indicator",
+            ),
+
+            # Calinski-Harabasz DBSCAN
+
+            html.Div([
+                html.H2("Calinski-Harabasz"),
+                html.H3(id="calinski_dbscan_text")
+            ],
+                id="calinski-dbscan",
+                className="mini_container indicator",
+            ),
+
+            # # Davies-Bouldin KMeans
+            html.Div([
+                html.H2("Davies-Bouldin"),
+                html.H3(id="davies_kmeans_text")
+            ],
+                id="davies-kmeans",
+                className="mini_container indicator",
+            ),
+
+            # # Davies-Bouldin DBSCAN
+            html.Div([
+                html.H2("Davies-Bouldin"),
+                html.H3(id="davies_dbscan_text")
+            ],
+                id="davies-dbscan",
+                className="mini_container indicator",
+            ),
+
         ],
             id="indicators",
         ),
@@ -235,16 +286,57 @@ app.layout = html.Div([
             html.Div([
                 dcc.Graph(
                     id='elbow-graph',
-                    figure=px.line(x=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], y=dashboard.wcss, title='Elbow method',
+                    figure=px.line(x=[2, 3, 4, 5, 6, 7, 8, 9, 10], y=dashboard.wcss, title='Elbow method',
                                    labels={
-                                       'x': 'Valores para K',
+                                       'x': 'K values',
                                        'y': 'WCSS',
                                    }
                                    )
                 ),
             ],
-                id="elbow",
+                id="elbow_graph_div",
             ),
+            html.Div([
+                dcc.Graph(
+                    id='silhouette-graph',
+                    figure=px.line(x=[2, 3, 4, 5, 6, 7, 8, 9, 10], y=dashboard.silhouette, title='Silhouette score',
+                                   labels={
+                                       'x': 'K values',
+                                       'y': 'Silhouette value',
+                                   }
+                                   )
+                ),
+            ],
+                id="silhouette_graph_div",
+            ),
+            html.Div([
+                dcc.Graph(
+                    id='calinski-graph',
+                    figure=px.line(x=[2, 3, 4, 5, 6, 7, 8, 9, 10], y=dashboard.calinski,
+                                   title='Calinski-Harabasz score',
+                                   labels={
+                                       'x': 'K values',
+                                       'y': 'Calinski-Harabasz value',
+                                   }
+                                   )
+                ),
+            ],
+                id="calinski_graph_div",
+            ),
+            html.Div([
+                dcc.Graph(
+                    id='davies-graph',
+                    figure=px.line(x=[2, 3, 4, 5, 6, 7, 8, 9, 10], y=dashboard.davies, title='Davies-Bouldin score',
+                                   labels={
+                                       'x': 'K values',
+                                       'y': 'Davies-Bouldin value',
+                                   }
+                                   )
+                ),
+            ],
+                id="davies_graph_div",
+            ),
+
             html.Div([
                 dcc.Graph(id='no-outlier-graph'),
             ],
@@ -273,12 +365,17 @@ app.layout = html.Div([
 
 @app.callback(
     Output(component_id='no-outlier', component_property='style'),
-    [Input(component_id='check_outliers', component_property='value')])
-def show_hide_element(value):
-    if value == ['outlier']:
-        return {'display': 'block'}
+    [Input(component_id='check_outliers', component_property='value'),
+     Input(component_id='algorithm-dropdown', component_property='value')])
+def show_hide_element(value, algorithm):
+    if algorithm == 'DBSCAN':
+        if value == ['outlier']:
+            return {'display': 'block'}
+        else:
+            return {'display': 'none'}
     else:
         return {'display': 'none'}
+
 
 @app.callback(
     Output(component_id='slider', component_property='style'),
@@ -301,17 +398,37 @@ def show_hide_element(visibility_state):
     Output(component_id='completeness-dbscan', component_property='style'),
     Output(component_id='vmeasure-kmeans', component_property='style'),
     Output(component_id='vmeasure-dbscan', component_property='style'),
+    Output(component_id='calinski-kmeans', component_property='style'),
+    Output(component_id='calinski-dbscan', component_property='style'),
+    Output(component_id='davies-kmeans', component_property='style'),
+    Output(component_id='davies-dbscan', component_property='style'),
     Output(component_id='outliers', component_property='style'),
     [Input(component_id='algorithm-dropdown', component_property='value')])
 def show_hide_element(visibility_state):
     if visibility_state == 'DBSCAN':
-        return {'display': 'block'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'block'}
+        return {'display': 'block'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {
+            'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {
+                   'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {
+                   'display': 'block'}, {'display': 'block'}
     else:
-        return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'none'}
+        return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {
+            'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {
+                   'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {
+                   'display': 'none'}, {'display': 'none'}
 
 
 @app.callback(
     Output(component_id='scatter', component_property='style'),
+    [Input(component_id='algorithm-dropdown', component_property='value')])
+def show_hide_element(visibility_state):
+    if visibility_state == 'KMeans':
+        return {'display': 'block'}
+    else:
+        return {'display': 'none'}
+
+
+@app.callback(
+    Output(component_id='score_kmeans', component_property='style'),
     [Input(component_id='algorithm-dropdown', component_property='value')])
 def show_hide_element(visibility_state):
     if visibility_state == 'KMeans':
@@ -339,14 +456,26 @@ def show_hide_element(visibility_state):
     else:
         return {'display': 'none'}
 
+
 @app.callback(
-    Output(component_id='elbow', component_property='style'),
-    [Input(component_id='algorithm-dropdown', component_property='value')])
-def show_hide_element(visibility_state):
-    if visibility_state == 'KMeans':
-        return {'display': 'block'}
+    Output(component_id='elbow_graph_div', component_property='style'),
+    Output(component_id='silhouette_graph_div', component_property='style'),
+    Output(component_id='calinski_graph_div', component_property='style'),
+    Output(component_id='davies_graph_div', component_property='style'),
+    [Input(component_id='algorithm-dropdown', component_property='value'),
+     Input(component_id='diagram-dropdown', component_property='value')])
+def show_hide_element(algorithm, diagram):
+    if algorithm == 'KMeans':
+        if diagram == 'elbow':
+            return {'display': 'block'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}
+        if diagram == 'silhouette':
+            return {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'none'}
+        if diagram == 'calinski':
+            return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}
+        if diagram == 'davies':
+            return {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'block'}
     else:
-        return {'display': 'none'}
+        return {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}
 
 
 @app.callback(
@@ -354,7 +483,9 @@ def show_hide_element(visibility_state):
      Output("silhouette_text", "children"),
      Output("homogeneity_kmeans_text", "children"),
      Output("completeness_kmeans_text", "children"),
-     Output("vmeasure_kmeans_text", "children")],
+     Output("vmeasure_kmeans_text", "children"),
+     Output("calinski_kmeans_text", "children"),
+     Output("davies_kmeans_text", "children")],
     [Input('k_slider', 'value'), Input("algorithm-dropdown", "value")])
 def update_k_param(value, algorithm):
     dashboard.update_model(algorithm)
@@ -362,8 +493,8 @@ def update_k_param(value, algorithm):
     fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Clustering result",
                      labels={'Coord 1': 'Coordinate 1',
                              'Coord 2': 'Coordinate 2'})
-    silhouette, homogeneity, completeness, vmeasure = dashboard.get_indicators()
-    return fig, silhouette, homogeneity, completeness, vmeasure
+    silhouette, homogeneity, completeness, vmeasure, calinski, davies = dashboard.get_indicators()
+    return fig, silhouette, homogeneity, completeness, vmeasure, calinski, davies
 
 
 @app.callback(
@@ -372,6 +503,8 @@ def update_k_param(value, algorithm):
      Output("homogeneity_dbscan_text", "children"),
      Output("completeness_dbscan_text", "children"),
      Output("vmeasure_dbscan_text", "children"),
+     Output("calinski_dbscan_text", "children"),
+     Output("davies_dbscan_text", "children"),
      Output('no-outlier-graph', 'figure')],
     [Input('eps_slider', 'value'), Input('slider_min_samples', 'value'), Input("algorithm-dropdown", "value")])
 def update_dbscan_params(eps, min_samples, value):
@@ -381,13 +514,13 @@ def update_dbscan_params(eps, min_samples, value):
                      labels={'Coord 1': 'Coordinate 1',
                              'Coord 2': 'Coordinate 2'})
 
-    silhouette, homogeneity, completeness, vmeasure = dashboard.get_indicators()
+    silhouette, homogeneity, completeness, vmeasure, calinski, davies = dashboard.get_indicators()
 
     fig2 = px.scatter(dashboard.df_no_outliers, x="Coord 1", y="Coord 2", color="Labels", title="Clustering result without outliers",
                      labels={'Coord 1': 'Coordinate 1',
                              'Coord 2': 'Coordinate 2'})
 
-    return fig, silhouette, homogeneity, completeness, vmeasure, fig2
+    return fig, silhouette, homogeneity, completeness, vmeasure, calinski, davies, fig2
 
 
 @app.callback(
