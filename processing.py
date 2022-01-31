@@ -30,37 +30,37 @@ class Dashboard(object):
 
         for i in range(2, 11):
             kmeans = KMeans(n_clusters=i, max_iter=300)
-            pred = kmeans.fit_predict(self.pca)
+            pred = kmeans.fit_predict(self.df_norm)
             self.wcss.append(kmeans.inertia_)
-            self.silhouette.append(silhouette_score(self.pca, pred))
-            self.calinski.append(calinski_harabasz_score(self.pca, pred))
-            self.davies.append(davies_bouldin_score(self.pca, pred))
+            self.silhouette.append(silhouette_score(self.df_norm, pred))
+            self.calinski.append(calinski_harabasz_score(self.df_norm, pred))
+            self.davies.append(davies_bouldin_score(self.df_norm, pred))
 
         kmeans = KMeans(n_clusters=3, max_iter=300)
-        kmeans.fit(self.pca)
-        self.y_pred = kmeans.predict(self.pca)
+        kmeans.fit(self.df_norm)
+        self.y_pred = kmeans.predict(self.df_norm)
         self.pca['Labels'] = kmeans.labels_
 
     def update_model(self, algorithm_name):
         algorithm = utils.algorithms[algorithm_name]
         if algorithm_name == 'KMeans':
-            self.model = algorithm.fit(self.pca)
-            self.y_pred = self.model.predict(self.pca)
+            self.model = algorithm.fit(self.df_norm)
+            self.y_pred = self.model.predict(self.df_norm)
             self.pca['Labels'] = algorithm.labels_
         else:
-            self.model = algorithm.fit(self.pca)
-            self.y_pred = self.model.fit_predict(self.pca)
+            self.model = algorithm.fit(self.df_norm)
+            self.y_pred = self.model.fit_predict(self.df_norm)
             self.pca['Labels'] = self.y_pred
             self.df_no_outliers = pd.DataFrame(self.pca)
             indexNames = self.df_no_outliers[self.df_no_outliers['Labels'] == -1].index
             self.df_no_outliers.drop(indexNames, inplace=True)
 
     def get_indicators(self):
-        silhouette = silhouette_score(self.pca, self.y_pred)
+        silhouette = silhouette_score(self.df_norm, self.y_pred)
         silhouette = round(silhouette, 4)
-        calinski = calinski_harabasz_score(self.pca, self.y_pred)
+        calinski = calinski_harabasz_score(self.df_norm, self.y_pred)
         calinski = round(calinski, 4)
-        davies = davies_bouldin_score(self.pca, self.y_pred)
+        davies = davies_bouldin_score(self.df_norm, self.y_pred)
         davies = round(davies, 4)
         return silhouette, calinski, davies
 
@@ -81,16 +81,16 @@ class Dashboard(object):
     def update_k_param(self, value):
         algorithm = utils.algorithms['KMeans']
         algorithm.n_clusters = value
-        self.model = algorithm.fit(self.pca)
-        self.y_pred = self.model.predict(self.pca)
+        self.model = algorithm.fit(self.df_norm)
+        self.y_pred = self.model.predict(self.df_norm)
         self.pca['Labels'] = algorithm.labels_
 
     def update_dbscan_params(self, eps, min_samples):
         algorithm = utils.algorithms['DBSCAN']
         algorithm.eps = eps
         algorithm.min_samples = min_samples
-        self.model = algorithm.fit(self.pca)
-        self.y_pred = self.model.fit_predict(self.pca)
+        self.model = algorithm.fit(self.df_norm)
+        self.y_pred = self.model.fit_predict(self.df_norm)
         self.pca['Labels'] = self.y_pred
         self.df_no_outliers = pd.DataFrame(self.pca)
         indexNames = self.df_no_outliers[self.df_no_outliers['Labels'] == -1].index

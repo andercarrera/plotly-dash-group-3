@@ -445,7 +445,6 @@ def update_dbscan_params(eps, min_samples, value):
     fig2 = px.scatter(dashboard.df_no_outliers, x="Coord 1", y="Coord 2", color="Labels", title="Clustering result without outliers",
                      labels={'Coord 1': 'Coordinate 1',
                              'Coord 2': 'Coordinate 2'})
-    print(str(eps) + " " + str(min_samples) + " " + str(silhouette) + " " + str(calinski), flush=True)
     return fig, silhouette, calinski, davies, fig2
 
 
