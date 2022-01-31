@@ -14,11 +14,11 @@ app.layout = html.Div([
     # Title
     html.Div([
         html.H1(
-            "Wine Data Set",
+            "Packetbeat Data Set",
             style={"margin-bottom": "0px"},
         ),
         html.H3(
-            "Visualización Datos MACC",
+            "POPBL MACC",
             style={"margin-bottom": "0px"},
         ),
     ],
@@ -67,22 +67,24 @@ app.layout = html.Div([
                 html.P("Select the eps value"),
                 dcc.Slider(
                     id='eps_slider',
-                    min=0.2,
-                    max=0.7,
-                    step=0.05,
-                    marks={0.2: '0.2',
-                           0.25: '0.25',
-                           0.3: '0.3',
-                           0.35: '0.35',
-                           0.4: '0.4',
-                           0.45: '0.45',
-                           0.5: '0.5',
-                           0.55: '0.55',
-                           0.6: '0.6',
-                           0.65: '0.65',
-                           0.7: '0.7',
+                    min=0.01,
+                    max=0.12,
+                    step=0.01,
+                    marks={
+                        0.01: '0.01',
+                        0.02: '0.02',
+                        0.03: '0.03',
+                        0.04: '0.04',
+                        0.05: '0.05',
+                        0.06: '0.06',
+                        0.07: '0.07',
+                        0.08: '0.08',
+                        0.09: '0.09',
+                        0.1: '0.1',
+                        0.11: '0.11',
+                        0.12: '0.12',
                            },
-                    value=0.5,
+                    value=0.05,
                 )
             ], style={'display': 'block'}),
             # KMeans Barra
@@ -113,10 +115,10 @@ app.layout = html.Div([
                 html.P("Select the minimum samples in a neighbourhood"),
                 dcc.Slider(
                     id='slider_min_samples',
-                    min=2,
-                    max=20,
-                    marks={i: '{}'.format(i) for i in range(2, 20)},
-                    value=5,
+                    min=3,
+                    max=18,
+                    marks={i: '{}'.format(i) for i in range(3, 18)},
+                    value=8,
                 )
             ], style={'display': 'block'}),
 
@@ -151,66 +153,6 @@ app.layout = html.Div([
                 html.H3(id="silhouette_dbscan_text")
             ],
                 id="silhouette-dbscan",
-                className="mini_container indicator",
-            ),
-
-            # Homogeneity KMeans
-
-            html.Div([
-                html.H2("Homogeneity"),
-                html.H3(id="homogeneity_kmeans_text")
-            ],
-                id="homogeneity-kmeans",
-                className="mini_container indicator",
-            ),
-
-            # Homogeneity DBSCAN
-
-            html.Div([
-                html.H2("Homogeneity"),
-                html.H3(id="homogeneity_dbscan_text")
-            ],
-                id="homogeneity-dbscan",
-                className="mini_container indicator",
-            ),
-
-            # Completeness KMeans
-
-            html.Div([
-                html.H2("Completeness"),
-                html.H3(id="completeness_kmeans_text")
-            ],
-                id="completeness-kmeans",
-                className="mini_container indicator",
-            ),
-
-            # Completeness DBSCAN
-
-            html.Div([
-                html.H2("Completeness"),
-                html.H3(id="completeness_dbscan_text")
-            ],
-                id="completeness-dbscan",
-                className="mini_container indicator",
-            ),
-
-            # V Measure KMeans
-
-            html.Div([
-                html.H2("V-Measure"),
-                html.H3(id="vmeasure_kmeans_text")
-            ],
-                id="vmeasure-kmeans",
-                className="mini_container indicator",
-            ),
-
-            # V Measure DBSCAN
-
-            html.Div([
-                html.H2("V-Measure"),
-                html.H3(id="vmeasure_dbscan_text")
-            ],
-                id="vmeasure-dbscan",
                 className="mini_container indicator",
             ),
 
@@ -392,12 +334,6 @@ def show_hide_element(visibility_state):
     Output(component_id='slider_div_min_samples', component_property='style'),
     Output(component_id='silhouette', component_property='style'),
     Output(component_id='silhouette-dbscan', component_property='style'),
-    Output(component_id='homogeneity-kmeans', component_property='style'),
-    Output(component_id='homogeneity-dbscan', component_property='style'),
-    Output(component_id='completeness-kmeans', component_property='style'),
-    Output(component_id='completeness-dbscan', component_property='style'),
-    Output(component_id='vmeasure-kmeans', component_property='style'),
-    Output(component_id='vmeasure-dbscan', component_property='style'),
     Output(component_id='calinski-kmeans', component_property='style'),
     Output(component_id='calinski-dbscan', component_property='style'),
     Output(component_id='davies-kmeans', component_property='style'),
@@ -406,14 +342,10 @@ def show_hide_element(visibility_state):
     [Input(component_id='algorithm-dropdown', component_property='value')])
 def show_hide_element(visibility_state):
     if visibility_state == 'DBSCAN':
-        return {'display': 'block'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {
-            'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {
-                   'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {
+        return {'display': 'block'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {
                    'display': 'block'}, {'display': 'block'}
     else:
-        return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {
-            'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {
-                   'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {
+        return {'display': 'none'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {'display': 'none'}, {'display': 'block'}, {
                    'display': 'none'}, {'display': 'none'}
 
 
@@ -481,9 +413,6 @@ def show_hide_element(algorithm, diagram):
 @app.callback(
     [Output('scatter-graph', 'figure'),
      Output("silhouette_text", "children"),
-     Output("homogeneity_kmeans_text", "children"),
-     Output("completeness_kmeans_text", "children"),
-     Output("vmeasure_kmeans_text", "children"),
      Output("calinski_kmeans_text", "children"),
      Output("davies_kmeans_text", "children")],
     [Input('k_slider', 'value'), Input("algorithm-dropdown", "value")])
@@ -493,16 +422,13 @@ def update_k_param(value, algorithm):
     fig = px.scatter(dashboard.pca, x="Coord 1", y="Coord 2", color="Labels", title="Clustering result",
                      labels={'Coord 1': 'Coordinate 1',
                              'Coord 2': 'Coordinate 2'})
-    silhouette, homogeneity, completeness, vmeasure, calinski, davies = dashboard.get_indicators()
-    return fig, silhouette, homogeneity, completeness, vmeasure, calinski, davies
+    silhouette, calinski, davies = dashboard.get_indicators()
+    return fig, silhouette, calinski, davies
 
 
 @app.callback(
     [Output('scatter-graph-dbscan', 'figure'),
      Output('silhouette_dbscan_text', 'children'),
-     Output("homogeneity_dbscan_text", "children"),
-     Output("completeness_dbscan_text", "children"),
-     Output("vmeasure_dbscan_text", "children"),
      Output("calinski_dbscan_text", "children"),
      Output("davies_dbscan_text", "children"),
      Output('no-outlier-graph', 'figure')],
@@ -514,13 +440,13 @@ def update_dbscan_params(eps, min_samples, value):
                      labels={'Coord 1': 'Coordinate 1',
                              'Coord 2': 'Coordinate 2'})
 
-    silhouette, homogeneity, completeness, vmeasure, calinski, davies = dashboard.get_indicators()
+    silhouette, calinski, davies = dashboard.get_indicators()
 
     fig2 = px.scatter(dashboard.df_no_outliers, x="Coord 1", y="Coord 2", color="Labels", title="Clustering result without outliers",
                      labels={'Coord 1': 'Coordinate 1',
                              'Coord 2': 'Coordinate 2'})
-
-    return fig, silhouette, homogeneity, completeness, vmeasure, calinski, davies, fig2
+    print(str(eps) + " " + str(min_samples) + " " + str(silhouette) + " " + str(calinski), flush=True)
+    return fig, silhouette, calinski, davies, fig2
 
 
 @app.callback(
